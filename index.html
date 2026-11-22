@@ -209,6 +209,9 @@ h1 span{color:#ff7b8a;}
 .ltable tr.charnock{border-left:3px solid var(--blue);}
 .lnote{background:var(--s2);border:1px solid var(--bd);border-radius:8px;padding:10px 13px;font-size:.78em;color:var(--textlt);line-height:1.6;margin-top:10px;}
 .lnote strong{color:var(--text);}
+.tnm{cursor:pointer;color:var(--blue);text-decoration:underline;text-decoration-style:dotted;text-underline-offset:2px;}
+.tnm:hover{color:var(--purple);}
+.ltable tr.charnock .tnm{color:var(--blue);}
 
 /* ── PLAYER OVERLAY ── */
 .ovlay{display:none;position:fixed;inset:0;z-index:100;background:rgba(26,16,20,.55);backdrop-filter:blur(4px);}
@@ -277,24 +280,24 @@ h1 span{color:#ff7b8a;}
 <div class="strip" id="strip"></div>
 
 <div class="cmpbar">
-  <button class="cmpbtn act" onclick="setCmp('all',this)">All</button>
-  <button class="cmpbtn" onclick="setCmp('league',this)">League</button>
+  <button class="cmpbtn act" onclick="setCmp('league',this)">League</button>
   <button class="cmpbtn" onclick="setCmp('cup',this)">Cup</button>
+  <button class="cmpbtn" onclick="setCmp('all',this)">All</button>
 </div>
 
 <div class="tabs">
-  <button class="tb act" onclick="sw('matches',this)">Matches</button>
+  <button class="tb act" id="tbTable" onclick="sw('table',this)">Table</button>
   <button class="tb" onclick="sw('players',this)">Players</button>
   <button class="tb" onclick="sw('situations',this)">Situations</button>
   <button class="tb" onclick="sw('insights',this)">Insights</button>
-  <button class="tb" onclick="sw('table',this)">Table</button>
+  <button class="tb" id="tbMatches" onclick="sw('matches',this)">Matches</button>
 </div>
 
-<div class="pnl act" id="pnl-matches"></div>
+<div class="pnl act" id="pnl-table"></div>
 <div class="pnl" id="pnl-players"></div>
 <div class="pnl" id="pnl-situations"></div>
 <div class="pnl" id="pnl-insights"></div>
-<div class="pnl" id="pnl-table"></div>
+<div class="pnl" id="pnl-matches"></div>
 
 <script>
 // ── DATA ──────────────────────────────────────────────────────────────────
@@ -314,12 +317,13 @@ const M=[
  {"id": 7, "comp": "league", "date": "15 Nov 2026", "opp": "Aston Swallownest (Blue)", "venue": "A", "res": "L", "score": "0-4", "htCh": null, "htOpp": null, "comeback": false, "htLL": false, "goals": []},
  {"id": 8, "comp": "league", "date": "22 Nov 2026", "opp": "Hoyland Falcons", "venue": "H", "res": "W", "score": "7-2", "htCh": 4, "htOpp": 0, "comeback": false, "htLL": false, "goals": [{"s": "Bailey", "min": 0, "a": "Moussa", "note": "deflected shot on target at 30 seconds, after release by Moussa"}, {"s": "Moussa", "min": 9, "a": "Bailey", "note": "from mid pitch, went round the defender to shoot past the keeper from the right"}, {"s": "Bailey", "min": 19, "a": null, "note": "rebound from his own right-side corner, smashed into the top far corner"}, {"s": "Amu", "min": 30, "a": null, "note": "penalty, straight down the middle"}, {"s": "Asher", "min": 43, "a": null, "note": "smashed from the right edge of the box"}, {"s": "Amu", "min": 43, "a": null, "note": "tapped in the 2nd ball after Clark's shot on target was stopped by the keeper"}, {"s": "Clark", "min": 50, "a": null, "note": "keeper spilled a slow shot on target"}]}
 ];
-const FIRST={"Amu": 1, "Bailey": 1, "Clark": 1, "Moussa": 3, "Asher": 3, "Leo": 5, "Kyon": 5};
+const FIRST={"Amu": 1, "Bailey": 1, "Clark": 1, "Asher": 3, "Moussa": 3, "Kyon": 5, "Leo": 5};
 const LTABLE=[{"pos": 1, "team": "Aston Swallownest Blue", "P": 8, "W": 7, "D": 1, "L": 0, "pts": 22, "us": false}, {"pos": 2, "team": "Hoyland Town", "P": 9, "W": 7, "D": 1, "L": 1, "pts": 22, "us": false}, {"pos": 3, "team": "Laughton", "P": 9, "W": 7, "D": 0, "L": 2, "pts": 21, "us": false}, {"pos": 4, "team": "Winterhill", "P": 8, "W": 6, "D": 0, "L": 2, "pts": 18, "us": false}, {"pos": 5, "team": "Charnock Ridgeway U13 Blacks", "P": 8, "W": 4, "D": 1, "L": 3, "pts": 13, "us": true}, {"pos": 6, "team": "Anston Rangers", "P": 7, "W": 4, "D": 0, "L": 3, "pts": 12, "us": false}, {"pos": 7, "team": "Aston Swallownest White", "P": 10, "W": 3, "D": 1, "L": 6, "pts": 10, "us": false}, {"pos": 8, "team": "Oxspring United", "P": 8, "W": 2, "D": 2, "L": 4, "pts": 8, "us": false}, {"pos": 9, "team": "Waverley Wanderers", "P": 8, "W": 2, "D": 1, "L": 5, "pts": 7, "us": false}, {"pos": 10, "team": "Woodhouse Phoenix", "P": 8, "W": 2, "D": 1, "L": 5, "pts": 7, "us": false}, {"pos": 11, "team": "Stocksbridge Park Steels", "P": 7, "W": 1, "D": 2, "L": 4, "pts": 5, "us": false}, {"pos": 12, "team": "Hoyland Common Falcons", "P": 10, "W": 0, "D": 0, "L": 10, "pts": 0, "us": false}];
+const LFIX=[{"date": "06 Sep 2026", "home": "Aston Swallownest Blue", "away": "Stocksbridge Park Steels", "score": "2-1", "ht": null}, {"date": "06 Sep 2026", "home": "Charnock Ridgeway U13 Blacks", "away": "Waverley Wanderers", "score": "2-1", "ht": "0-1"}, {"date": "06 Sep 2026", "home": "Hoyland Common Falcons", "away": "Woodhouse Phoenix", "score": "0-6", "ht": "0-4"}, {"date": "06 Sep 2026", "home": "Hoyland Town", "away": "Winterhill", "score": "7-6", "ht": "1-6"}, {"date": "06 Sep 2026", "home": "Laughton", "away": "Aston Swallownest White", "score": "6-1", "ht": "4-0"}, {"date": "06 Sep 2026", "home": "Oxspring United", "away": "Anston Rangers", "score": "2-5", "ht": "0-2"}, {"date": "13 Sep 2026", "home": "Stocksbridge Park Steels", "away": "Hoyland Common Falcons", "score": "4-1", "ht": "2-1"}, {"date": "13 Sep 2026", "home": "Woodhouse Phoenix", "away": "Laughton", "score": "6-4", "ht": null}, {"date": "13 Sep 2026", "home": "Aston Swallownest White", "away": "Hoyland Town", "score": "0-8", "ht": "0-4"}, {"date": "13 Sep 2026", "home": "Waverley Wanderers", "away": "Aston Swallownest Blue", "score": "0-4", "ht": "0-1"}, {"date": "16 Sep 2026", "home": "Oxspring United", "away": "Winterhill", "score": "2-9", "ht": "0-6"}, {"date": "27 Sep 2026", "home": "Oxspring United", "away": "Aston Swallownest White", "score": "3-1", "ht": "1-1"}, {"date": "27 Sep 2026", "home": "Aston Swallownest Blue", "away": "Anston Rangers", "score": "4-0", "ht": null}, {"date": "27 Sep 2026", "home": "Charnock Ridgeway U13 Blacks", "away": "Winterhill", "score": "0-3", "ht": "0-2"}, {"date": "27 Sep 2026", "home": "Hoyland Common Falcons", "away": "Waverley Wanderers", "score": "1-3", "ht": "1-2"}, {"date": "27 Sep 2026", "home": "Hoyland Town", "away": "Laughton", "score": "6-3", "ht": null}, {"date": "27 Sep 2026", "home": "Stocksbridge Park Steels", "away": "Woodhouse Phoenix", "score": "3-3", "ht": null}, {"date": "04 Oct 2026", "home": "Aston Swallownest White", "away": "Charnock Ridgeway U13 Blacks", "score": "3-3", "ht": "0-2"}, {"date": "04 Oct 2026", "home": "Anston Rangers", "away": "Hoyland Common Falcons", "score": "8-2", "ht": "4-1"}, {"date": "04 Oct 2026", "home": "Laughton", "away": "Oxspring United", "score": "6-1", "ht": null}, {"date": "04 Oct 2026", "home": "Waverley Wanderers", "away": "Stocksbridge Park Steels", "score": "2-2", "ht": "1-1"}, {"date": "04 Oct 2026", "home": "Winterhill", "away": "Aston Swallownest Blue", "score": "1-5", "ht": null}, {"date": "04 Oct 2026", "home": "Woodhouse Phoenix", "away": "Hoyland Town", "score": "1-9", "ht": "0-3"}, {"date": "11 Oct 2026", "home": "Aston Swallownest Blue", "away": "Aston Swallownest White", "score": "3-1", "ht": "2-0"}, {"date": "11 Oct 2026", "home": "Charnock Ridgeway U13 Blacks", "away": "Laughton", "score": "3-4", "ht": "0-2"}, {"date": "11 Oct 2026", "home": "Hoyland Common Falcons", "away": "Winterhill", "score": "0-8", "ht": null}, {"date": "11 Oct 2026", "home": "Waverley Wanderers", "away": "Woodhouse Phoenix", "score": "4-1", "ht": "2-1"}, {"date": "11 Oct 2026", "home": "Oxspring United", "away": "Hoyland Town", "score": "2-2", "ht": "0-2"}, {"date": "25 Oct 2026", "home": "Aston Swallownest White", "away": "Hoyland Common Falcons", "score": "5-2", "ht": "4-1"}, {"date": "01 Nov 2026", "home": "Anston Rangers", "away": "Woodhouse Phoenix", "score": "2-1", "ht": "0-0"}, {"date": "01 Nov 2026", "home": "Aston Swallownest Blue", "away": "Hoyland Town", "score": "3-1", "ht": "1-0"}, {"date": "01 Nov 2026", "home": "Charnock Ridgeway U13 Blacks", "away": "Oxspring United", "score": "5-2", "ht": "3-0"}, {"date": "01 Nov 2026", "home": "Hoyland Common Falcons", "away": "Laughton", "score": "3-5", "ht": null}, {"date": "01 Nov 2026", "home": "Stocksbridge Park Steels", "away": "Aston Swallownest White", "score": "0-4", "ht": null}, {"date": "08 Nov 2026", "home": "Oxspring United", "away": "Aston Swallownest Blue", "score": "3-3", "ht": null}, {"date": "08 Nov 2026", "home": "Aston Swallownest White", "away": "Waverley Wanderers", "score": "2-0", "ht": "2-0"}, {"date": "08 Nov 2026", "home": "Hoyland Town", "away": "Hoyland Common Falcons", "score": "6-1", "ht": "4-0"}, {"date": "08 Nov 2026", "home": "Laughton", "away": "Stocksbridge Park Steels", "score": "6-3", "ht": null}, {"date": "08 Nov 2026", "home": "Winterhill", "away": "Anston Rangers", "score": "2-0", "ht": null}, {"date": "08 Nov 2026", "home": "Woodhouse Phoenix", "away": "Charnock Ridgeway U13 Blacks", "score": "1-5", "ht": "0-1"}, {"date": "15 Nov 2026", "home": "Anston Rangers", "away": "Aston Swallownest White", "score": "2-1", "ht": "1-0"}, {"date": "15 Nov 2026", "home": "Aston Swallownest Blue", "away": "Charnock Ridgeway U13 Blacks", "score": "4-0", "ht": null}, {"date": "15 Nov 2026", "home": "Hoyland Common Falcons", "away": "Oxspring United", "score": "0-5", "ht": "0-2"}, {"date": "15 Nov 2026", "home": "Stocksbridge Park Steels", "away": "Hoyland Town", "score": "1-6", "ht": "1-3"}, {"date": "15 Nov 2026", "home": "Winterhill", "away": "Woodhouse Phoenix", "score": "8-3", "ht": null}, {"date": "15 Nov 2026", "home": "Waverley Wanderers", "away": "Laughton", "score": "2-3", "ht": "2-1"}, {"date": "22 Nov 2026", "home": "Aston Swallownest White", "away": "Winterhill", "score": "0-5", "ht": "0-3"}, {"date": "22 Nov 2026", "home": "Charnock Ridgeway U13 Blacks", "away": "Hoyland Common Falcons", "score": "7-2", "ht": "3-0"}, {"date": "22 Nov 2026", "home": "Hoyland Town", "away": "Waverley Wanderers", "score": "2-1", "ht": "0-0"}, {"date": "22 Nov 2026", "home": "Laughton", "away": "Anston Rangers", "score": "2-1", "ht": null}];
 
 
 // ── STATE ─────────────────────────────────────────────────────────────────
-let curComp='all';
+let curComp='league';
 let pM='goals',pV='all',pH='all';
 
 // ── HELPERS ───────────────────────────────────────────────────────────────
@@ -458,7 +462,7 @@ function rP(){
   }
   const pairsScopeLbl=isPM?cmpLbl:`${cmpLbl} · ${pV==='all'?'All venues':pV==='H'?'Home':'Away'}${phf?' · '+(phf==='h1'?H1L:H2L):''}`;
   el.innerHTML=`
-    <div class="frow">${mfb('goals','⚽ Goals','fa')}${mfb('assists','🅰 Assists','fb2')}${mfb('contrib','📊 Contributions','fb3')}${mfb('perMatch','📈 Per Match','fb4')}</div>
+    <div class="frow">${mfb('goals','⚽ Goals','fa')}${mfb('contrib','📊 Contributions','fb3')}${mfb('assists','🅰 Assists','fb2')}${mfb('perMatch','📈 Per Match','fb4')}</div>
     ${vhF}
     <div class="shd">${hdLbl} — ${vhLbl}</div>
     <div class="note" style="margin-bottom:8px;margin-top:-4px">Tap a player's name to see their match-by-match breakdown.</div>
@@ -703,7 +707,7 @@ function rTable(){
     const posLbl=t.pos===1?'🥇':t.pos===2?'🥈':t.pos===3?'🥉':t.pos;
     return`<tr class="${cls}">
       <td class="pos">${posLbl}</td>
-      <td>${t.team}${t.us?' ◀':''}</td>
+      <td><span class="tnm" onclick="openTeamResults('${t.team}')">${t.team}</span>${t.us?' ◀':''}</td>
       <td>${t.P}</td>
       <td class="cW">${t.W}</td>
       <td class="cD">${t.D}</td>
@@ -718,6 +722,54 @@ function rTable(){
       <tbody>${rows}</tbody>
     </table>
     <div class="lnote">Standings · 22 Nov 2026 (FA Full-Time, U13 - K Division). Charnock 5th on 13 pts (P8 W4 D1 L3).</div>`;
+}
+
+// ── TEAM RESULTS (click a team name in the Table tab) ──────────────────────
+const usTeam=(LTABLE.find(t=>t.us)||{}).team;
+function openTeamResults(team){
+  if(team===usTeam){
+    sw('matches',document.getElementById('tbMatches'));
+    return;
+  }
+  const fx=(typeof LFIX!=='undefined'?LFIX:[]).filter(f=>f.home===team||f.away===team);
+  let w=0,d=0,l=0,gf=0,ga=0;
+  const rowsHtml=fx.map(f=>{
+    const isHome=f.home===team;
+    const opp=isHome?f.away:f.home;
+    const [hs,as]=f.score.split('-').map(Number);
+    const tf=isHome?hs:as, ta=isHome?as:hs;
+    const res=tf>ta?'W':tf===ta?'D':'L';
+    if(res==='W')w++;else if(res==='D')d++;else l++;
+    gf+=tf;ga+=ta;
+    let htStr='';
+    if(f.ht){
+      const [hh,ha]=f.ht.split('-').map(Number);
+      const th=isHome?hh:ha, toa=isHome?ha:hh;
+      htStr=` <span style="color:var(--muted);font-size:.85em">(HT ${th}–${toa})</span>`;
+    }
+    const vLabel=isHome?'Home':'Away', vClass=isHome?'vH':'vA';
+    return`<div class="mc">
+      <div class="mh" style="cursor:default">
+        <div class="rb rb${res}">${res}</div>
+        <div class="mi">
+          <div class="mo">${opp}</div>
+          <div class="mm"><span class="vt ${vClass}">${vLabel}</span> ${f.date}${htStr}</div>
+        </div>
+        <div class="msco sc${res}">${tf}-${ta}</div>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('ovbox').innerHTML=`
+    <div class="ovhead">
+      <div>
+        <div class="ovname">${team}</div>
+        <div class="ovsub">${fx.length} match${fx.length!==1?'es':''} played so far · W${w} D${d} L${l} · GF ${gf} GA ${ga}</div>
+      </div>
+      <button class="ovcls" onclick="closeOverlay()">✕</button>
+    </div>
+    <div class="ovbody">${rowsHtml||'<div class="novdata">No results recorded yet.</div>'}</div>`;
+  document.getElementById('overlay').classList.add('show');
+  document.body.style.overflow='hidden';
 }
 
 // ── COMPETITION FILTER ────────────────────────────────────────────────────
